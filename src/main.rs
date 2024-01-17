@@ -2,8 +2,8 @@ mod handlers;
 
 use std::time::Duration;
 
+use handlers::attendance::{get_attendance, insert_attendance, update_attendance};
 use handlers::students::get_student;
-use handlers::attendance::get_attendance;
 
 use anyhow::{self, Context};
 use axum::routing::{get, Router};
@@ -24,7 +24,12 @@ async fn main() -> anyhow::Result<()> {
     let router = Router::new()
         .route("/", get(hello))
         .route("/student", get(get_student))
-        .route("/attendance", get(get_attendance))
+        .route(
+            "/attendance",
+            get(get_attendance)
+                .post(insert_attendance)
+                .put(update_attendance),
+        )
         .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:6969").await?;
